@@ -1,4 +1,4 @@
 package com.chat.live.entity;
 
-public class Room {
+public class Channel {
 }
