@@ -1,6 +1,7 @@
 package com.chat.live.controller;
 
 import com.chat.live.Service.LoginService;
+import com.chat.live.repository.dto.LoginForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
