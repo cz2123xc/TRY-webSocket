@@ -1,7 +1,6 @@
 package com.chat.live.controller;
 
-import com.chat.live.Service.ChatService;
-import com.chat.live.entity.ChatMessage;
+import com.chat.live.dto.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;

@@ -1,4 +1,4 @@
-package com.chat.live.entity;
+package com.chat.live.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
