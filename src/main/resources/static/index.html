@@ -15,48 +15,93 @@
 </head>
 <body>
 
-<p>연결 테스트</p>
+<!--make bootstrap button-->
+<div class="container">
 
-<script type="module" >
+    <div>
+        <p class="text-center fs-5" >닉네임을 입력해 주세요</p>
+        <div class="row">
+            <div class="col" >
+                <input type="text" class="form-control" id="nickname" placeholder="닉네임">
+            </div>
+            <div class="col" >
+                <button type="button" class="btn btn-primary" id="btn_nickname">닉네임 변경</button>
+            </div>
+        </div>
 
-    console.log("연결 테스트");
+
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-primary" onclick="join(1)">1번 채널 join</button>
+                <button type="button" class="btn btn-primary" onclick="join(2)">2번 채널 join</button>
+                <button type="button" class="btn btn-primary" onclick="join(3)">3번 채널 join</button>
+                <button type="button" class="btn btn-primary" onclick="join(4)">4번 채널 join</button>
+                <button type="button" class="btn btn-primary" onclick="join(5)">5번 채널 join</button>
+            </div>
+        </div>
+
+        <div>
+            <button type="button" class="btn btn-primary" onclick="send()">메시지 전송</button>
+            <input type="text" class="form-control" id="msg" placeholder="메시지를 입력해 주세요">
+        </div>
+
+
+
+        <div>
+            <!--chatting text-->
+            <div class="row">
+                <div class="col" id="chatting_text">
+                    <p class="text-center fs-5" >채팅방에 입장하세요</p>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+</div>
+
+
+</div>
+
+<script>
+
     let socket = new SockJS('/ws');
-    console.log("연결 테스트");
     let stomp = Stomp.over(socket);
-    console.log("연결 테스트");
+    let nickname = '';
+    let channel = '';
 
     window.onload = function () {
         connect();
     }
 
-    let roomId = 1;
-    let userName = "userA";
-
-
     function connect() {
         // 연결되면 실행되는 함수
         stomp.connect({}, function () {
-            console.log('connected');
+            console.log("연결되었습니다.");
         }, function (error) {
             console.log('error', error);
         });
     }
 
-    // function join() {
-    //     stomp.send('/app/chat/join', {}, JSON.stringify({
-    //         roomId: roomId,
-    //         userName: userName
-    //     }));
-    // }
-    //
-    // function send() {
-    //     let message = document.getElementById("message").value;
-    //     stomp.send('/app/chat/send', {}, JSON.stringify({
-    //         roomId: roomId,
-    //         userName: userName,
-    //         message: message
-    //     }));
-    // }
+    function join(channelId) {
+        stomp.send('/app/chat/join', {}, JSON.stringify({
+            channelId: channelId
+        }));
+    }
+
+
+    function send() {
+        let message = document.getElementById("message").value;
+        stomp.send('/app/chat/send', {}, JSON.stringify({
+            message: message
+        }));
+    }
 
 
 
