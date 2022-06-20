@@ -40,19 +40,17 @@
             </div>
         </div>
 
+
         <div>
             <button type="button" class="btn btn-primary" onclick="send()">메시지 전송</button>
             <input type="text" class="form-control" id="msg" placeholder="메시지를 입력해 주세요">
         </div>
 
 
-
         <div>
             <!--chatting text-->
             <div class="row">
-                <div class="col" id="chatting_text">
-                    <p class="text-center fs-5" >채팅방에 입장하세요</p>
-                </div>
+                <div class="col" id="chatting_text"></div>
             </div>
         </div>
 
@@ -73,8 +71,6 @@
 
     let socket = new SockJS('/ws');
     let stomp = Stomp.over(socket);
-    let nickname = '';
-    let channel = '';
 
     window.onload = function () {
         connect();
@@ -82,23 +78,30 @@
 
     function connect() {
         // 연결되면 실행되는 함수
-        stomp.connect({}, function () {
-            console.log("연결되었습니다.");
+        stomp.connect({}, function (data) {
+            console.log('connected');
+            console.log(data);
+            let chatting_text = document.getElementById('chatting_text');
+            chatting_text.innerHTML = chatting_text.innerHTML + '<p class="text-center fs-5" >채널을 선택해 주세요</p>';
         }, function (error) {
-            console.log('error', error);
+            console.log('error: ', error);
         });
     }
 
     function join(channelId) {
-        stomp.send('/app/chat/join', {}, JSON.stringify({
-            channelId: channelId
-        }));
+        console.log('channelId: ', channelId);
+        stomp.subscribe('/app/subscribe', function (data) {
+            console.log('data: ', data);
+            let chatting_text = document.getElementById('chatting_text');
+            chatting_text.innerHTML = chatting_text.innerHTML + '<p class="text-center fs-5" >' + data.body + '</p>';
+        });
+
     }
 
 
     function send() {
         let message = document.getElementById("message").value;
-        stomp.send('/app/chat/send', {}, JSON.stringify({
+        stomp.send('/app/request', {}, JSON.stringify({
             message: message
         }));
     }
