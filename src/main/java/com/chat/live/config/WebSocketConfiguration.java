@@ -37,7 +37,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         log.info("config: {}", config);
         // 2.  Application 내부에서 사용할 path 지정
         config.setApplicationDestinationPrefixes("/app"); // (pub) Client 에서 SEND 되는 메시지를 처리 (@MessageMapping @Controller 로 라우팅 되는 메시지)
-        config.enableSimpleBroker("/topic", "/queue"); // (sub) 해당하는 경로를 SUBSCRIBE 하는 Client 에게 메시지를 간단하게 전달 queue = 1:1 메시지 (내장된 브로커 사용)
+//        config.enableSimpleBroker("/topic", "/queue"); // (sub) 해당하는 경로를 SUBSCRIBE 하는 Client 에게 메시지를 간단하게 전달 queue = 1:1 메시지 (내장된 브로커 사용)
+        config.enableSimpleBroker("/topic"); // (sub) 해당하는 경로를 SUBSCRIBE 하는 Client 에게 메시지를 간단하게 전달 queue = 1:1 메시지 (내장된 브로커 사용)
     }
 
     @Override

@@ -27,6 +27,9 @@
             <div class="col" >
                 <button type="button" class="btn btn-primary" id="btn_nickname">닉네임 변경</button>
             </div>
+            <div class="col" >
+                <button type="button" class="btn btn-primary" onclick="disconnect()" id="btn_disconnect">접속 종료</button>
+            </div>
         </div>
 
 
@@ -70,14 +73,18 @@
 
 <script>
 
-    let socket = new SockJS('/ws');
-    let stomp = Stomp.over(socket);
+    var stomp = null;
+    var channel = null;
 
     window.onload = function () {
+        // SockJs init
+
         connect();
     }
 
     function connect() {
+        let socket = new SockJS('/ws');
+        stomp = Stomp.over(socket);
         // 연결되면 실행되는 함수
         stomp.connect({}, function (data) {
             console.log('connected');
@@ -90,25 +97,43 @@
     }
 
     function join(channelId) {
-        console.log('channelId: ', channelId);
-        stomp.subscribe('/app/subscribe', function (data) {
-            console.log('data: ', data);
+        // 채널 모니터링 시작
+        stomp.subscribe('/topic/chat/room/' + channelId, function (data) {
+            console.log('subscribe: ', data);
             let chatting_text = document.getElementById('chatting_text');
-            chatting_text.innerHTML = chatting_text.innerHTML + '<p class="text-center fs-5" >' + data.body + '</p>';
+            // get data message
+            let message = JSON.parse(data.body);
+            // get json of message
+            chatting_text.innerHTML = chatting_text.innerHTML + '<p class="text-center fs-5" >'+message.message+'</p>';
         });
 
+        // 모니터링 된 채널에 접속 메시지 전송 (백엔드에서 자체 처리 할수 있을듯 일단은 이렇게)
+        stomp.send('/app/request', {}, JSON.stringify({
+            channelId: channelId,
+            message: "채널 접속"
+        }));
+
+        // 채널 설정
+        channel = channelId;
     }
 
-
     function send() {
-        let message = document.getElementById("message").value;
+        let msg = document.getElementById('msg').value;
+        // send message
         stomp.send('/app/request', {}, JSON.stringify({
-            message: message
+            channelId: channel,
+            message: msg
         }));
     }
 
-
-
+    function disconnect() {
+        if (stomp != null) {
+            stomp.disconnect();
+            let chatting_text = document.getElementById('chatting_text');
+            chatting_text.innerHTML = '<p class="text-center fs-5" >접속이 종료되었습니다.</p>';
+        }
+        console.log('Disconnected');
+    }
 
 </script>
 </body>

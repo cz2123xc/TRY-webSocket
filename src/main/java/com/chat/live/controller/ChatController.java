@@ -35,6 +35,7 @@ public class ChatController {
      */
     @MessageMapping("/request")
     public void handleMessageWithoutResponse(Message message) {
+        log.info("request 컨트롤러 진입");
         template.convertAndSend("/topic/chat/room/" + message.getChannelId(), message); // 1:N 전송.(귓말이 아니므로)
     }
 
