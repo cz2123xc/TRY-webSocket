@@ -45,7 +45,7 @@
 
 
         <div>
-            <button type="button" class="btn btn-primary" onclick="send()">메시지 전송</button>
+            <button type="button" class="btn btn-primary" id="btn-send" onclick="send()">메시지 전송</button>
             <input type="text" class="form-control" id="msg" placeholder="메시지를 입력해 주세요">
         </div>
 
@@ -56,20 +56,9 @@
                 <div class="col" id="chatting_text"></div>
             </div>
         </div>
-
-
-
-
     </div>
-
-
-
-
-
 </div>
 
-
-</div>
 
 <script>
 
@@ -78,17 +67,20 @@
 
     window.onload = function () {
         // SockJs init
-
         connect();
+        // 엔터 입력시 메시지 전송
+        window.addEventListener("keydown", event => {
+            if (event.keyCode === 13) {
+                send();
+            }
+        });
     }
 
     function connect() {
         let socket = new SockJS('/ws');
         stomp = Stomp.over(socket);
         // 연결되면 실행되는 함수
-        stomp.connect({}, function (data) {
-            console.log('connected');
-            console.log(data);
+        stomp.connect({}, function () {
             let chatting_text = document.getElementById('chatting_text');
             chatting_text.innerHTML = chatting_text.innerHTML + '<p class="text-center fs-5" >채널을 선택해 주세요</p>';
         }, function (error) {
@@ -97,24 +89,17 @@
     }
 
     function join(channelId) {
-        // 채널 모니터링 시작
-        stomp.subscribe('/topic/chat/room/' + channelId, function (data) {
-            console.log('subscribe: ', data);
-            let chatting_text = document.getElementById('chatting_text');
-            // get data message
-            let message = JSON.parse(data.body);
-            // get json of message
-            chatting_text.innerHTML = chatting_text.innerHTML + '<p class="text-center fs-5" >'+message.message+'</p>';
-        });
 
-        // 모니터링 된 채널에 접속 메시지 전송 (백엔드에서 자체 처리 할수 있을듯 일단은 이렇게)
-        stomp.send('/app/request', {}, JSON.stringify({
-            channelId: channelId,
-            message: "채널 접속"
-        }));
-
-        // 채널 설정
         channel = channelId;
+
+        // 채널 모니터링 시작
+        stomp.subscribe('/topic/chat/room/' + channelId, function (response) {
+            let chatting_text = document.getElementById('chatting_text');
+            let body = JSON.parse(response.body);
+            chatting_text.innerHTML = chatting_text.innerHTML + '<p class="text-center fs-5" >'+body.message+'</p>';
+        });
+        // 모니터링 된 채널에 접속 메시지 전송 (백엔드에서 자체 처리 할수 있을듯 일단은 이렇게)
+        stomp.send('/app/greeting', {}, JSON.stringify({ channelId: channelId }));
     }
 
     function send() {

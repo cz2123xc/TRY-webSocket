@@ -1,10 +1,14 @@
 package com.chat.live.controller;
 
+import com.chat.live.dto.Greeting;
 import com.chat.live.dto.Message;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.util.HtmlUtils;
 
 @Controller
 @Slf4j
@@ -12,22 +16,19 @@ public class ChatController {
 
     private final SimpMessagingTemplate template; // Config 에서 @EnableWebSocketMessageBroker 를 통해서 등록되는 Bean. 특정 Broker 로 메시지를 전달.
 
+    @Autowired
     public ChatController(SimpMessagingTemplate template) {
         this.template = template;
     }
 
-    /**
-     *
-     * /pub/chat/join 로 전달된 메시지를 sub(/topic or /queue)/chat 로 전달한다.
-     */
 
-    @MessageMapping("/subscribe") // 실제 경로는 앞에 app, topic, queue 가 붙여진다. 현재는 publish, subscribe 도 붙을 수 있음
-    public void SubscribeMappingController(Message message) { // ChatMessage 는 채팅 메시지를 담은 엔티티.
-        log.info("join 컨트롤러 진입");
-        log.info("join: {}", message);
-        message.setMessage("[입장] " + message.getSender());
-        template.convertAndSend("/topic/chat/room/" + message.getChannelId(), message); // 1:N 전송.(입장 메시지 이므로)
+    @MessageMapping("/greeting")
+    public void greeting(Greeting greeting) {
+        log.info("greeting: {}", greeting.getChannelId());
+        greeting.setMessage(greeting.getChannelId() + "번 채널에 아무개 님이 입장하셧습니다.");
+        template.convertAndSend("/topic/chat/room/" + greeting.getChannelId() , greeting);
     }
+
 
     /**
      *
@@ -38,6 +39,7 @@ public class ChatController {
         log.info("request 컨트롤러 진입");
         template.convertAndSend("/topic/chat/room/" + message.getChannelId(), message); // 1:N 전송.(귓말이 아니므로)
     }
+
 
 
 
